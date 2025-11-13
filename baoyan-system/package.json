@@ -1,0 +1,12 @@
+{
+  "name": "baoyan-monitor",
+  "version": "1.0.0", 
+  "description": "保研信息实时监控系统",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo '不需要编译'"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}

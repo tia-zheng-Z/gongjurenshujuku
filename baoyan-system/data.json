@@ -1,0 +1,102 @@
+{
+  "alerts": [
+    {
+      "id": 1,
+      "title": "华南理工大学教务处关于2025-2026学年第二学期课程安排的通知",
+      "summary": "公布下学期课程安排、选课时间及注意事项，请各学院及学生提前准备。",
+      "date": "2025-11-11",
+      "type": "academic",
+      "university": "华南理工大学",
+      "college": "教务处",
+      "priority": "high",
+      "link": "https://www.scut.edu.cn",
+      "source": "华南理工大学官网"
+    },
+    {
+      "id": 2,
+      "title": "同济大学物理科学与工程学院'物理创新竞赛'报名通知",
+      "summary": "学院举办的物理创新竞赛，面向全校本科生，获奖者将获得创新学分和奖金。",
+      "date": "2025-11-10",
+      "type": "competition",
+      "university": "同济大学",
+      "college": "物理科学与工程学院",
+      "priority": "high",
+      "link": "https://www.tongji.edu.cn",
+      "source": "同济大学官网",
+      "deadline": "2025-11-30"
+    },
+    {
+      "id": 3,
+      "title": "四川大学本科生院关于2025年推免研究生资格审核工作的通知",
+      "summary": "公布2025年推免研究生资格审核标准、流程及时间安排，请符合条件的学生及时提交材料。",
+      "date": "2025-11-09",
+      "type": "policy",
+      "university": "四川大学",
+      "college": "本科生院",
+      "priority": "high",
+      "link": "https://www.scu.edu.cn",
+      "source": "四川大学官网"
+    },
+    {
+      "id": 4,
+      "title": "电子科技大学格拉斯哥学院2025年国际交流项目说明会",
+      "summary": "介绍与英国格拉斯哥大学的联合培养项目，提升国际竞争力。",
+      "date": "2025-11-08",
+      "type": "policy",
+      "university": "电子科技大学",
+      "college": "格拉斯哥学院",
+      "priority": "high",
+      "link": "https://www.uestc.edu.cn",
+      "source": "电子科技大学官网"
+    },
+    {
+      "id": 5,
+      "title": "东南大学计算机学院软件工程竞赛培训通知",
+      "summary": "为参加全国软件工程竞赛的学生提供专业培训和指导，提升竞赛水平。",
+      "date": "2025-11-07",
+      "type": "competition",
+      "university": "东南大学",
+      "college": "计算机学院",
+      "priority": "high",
+      "link": "https://www.seu.edu.cn",
+      "source": "东南大学官网",
+      "deadline": "2025-12-10"
+    },
+    {
+      "id": 6,
+      "title": "浙江大学本科生院关于2025-2026学年奖学金评定工作的通知",
+      "summary": "公布各类奖学金评定标准、申请流程及时间节点，请各学院组织学生申报。",
+      "date": "2025-11-12",
+      "type": "academic",
+      "university": "浙江大学",
+      "college": "本科生院",
+      "priority": "medium",
+      "link": "https://www.zju.edu.cn",
+      "source": "浙江大学官网"
+    },
+    {
+      "id": 7,
+      "title": "清华大学日新学院'强基计划'培养方案解读会",
+      "summary": "详细解读强基计划的培养方案、课程设置和未来发展路径。",
+      "date": "2025-11-13",
+      "type": "policy",
+      "university": "清华大学",
+      "college": "日新学院",
+      "priority": "high",
+      "link": "https://www.tsinghua.edu.cn",
+      "source": "清华大学官网"
+    },
+    {
+      "id": 8,
+      "title": "清华大学2025-2026学年第一学期期末考试安排",
+      "summary": "公布期末考试时间、考场安排及相关注意事项",
+      "date": "2025-11-14",
+      "type": "academic",
+      "university": "清华大学", 
+      "college": "教务处",
+      "priority": "high",
+      "link": "https://www.tsinghua.edu.cn",
+      "source": "清华大学官网"
+    }
+  ]
+}

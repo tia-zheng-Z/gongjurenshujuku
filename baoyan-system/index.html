@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保研信息实时监控系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 你的CSS样式保持不变 */
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header h2 {
+            font-size: 1.3rem;
+            color: var(--dark);
+        }
+        
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .alert-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .alert-item:hover {
+            background-color: #f9f9f9;
+            transform: translateY(-2px);
+        }
+        
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .alert-high {
+            background: var(--danger);
+        }
+        
+        .alert-medium {
+            background: var(--warning);
+        }
+        
+        .alert-low {
+            background: var(--gray);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        
+        .alert-content p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .alert-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            flex-wrap: wrap;
+        }
+        
+        .alert-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            background: #f0f0f0;
+        }
+        
+        .tag-competition {
+            background: #e1f5fe;
+            color: #0288d1;
+        }
+        
+        .tag-policy {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .tag-academic {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .external-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: auto;
+        }
+        
+        .external-link:hover {
+            text-decoration: underline;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        
+        .filter-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .filter-option input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .filter-option label {
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        
+        .time-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .time-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .time-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .university-filter {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .university-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .university-item {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .university-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .university-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .action-btn.save {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .action-btn.save:hover {
+            background: #c8e6c9;
+        }
+        
+        .info-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .stat-badge {
+            background: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-badge i {
+            color: var(--primary);
+        }
+        
+        .priority-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .priority-high {
+            background-color: var(--danger);
+        }
+        
+        .priority-medium {
+            background-color: var(--warning);
+        }
+        
+        .priority-low {
+            background-color: var(--gray);
+        }
+        
+        .update-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-left: 10px;
+        }
+        
+        .update-indicator.active {
+            color: var(--secondary);
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .main-content {
+                order: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .time-filter {
+                flex-wrap: wrap;
+            }
+            
+            .info-stats {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>保研信息实时监控系统</h1>
+                </div>
+                <div class="update-indicator" id="update-indicator">
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="last-update">2025-11-13 10:30</span>
+                    <button id="call-robot" style="margin-left: 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border: 1px solid white; border-radius: 5px; color: white; cursor: pointer; font-size: 0.8rem;">
+                        <i class="fas fa-robot"></i> 召唤机器人
+                    </button>
+                    <button id="manual-update" style="margin-left: 10px; padding: 2px 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); border-radius: 3px; color: white; cursor: pointer;">
+                        <i class="fas fa-redo"></i> 立即更新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 第一行：院校筛选 -->
+        <div class="university-filter">
+            <h3><i class="fas fa-university"></i> 目标院校筛选</h3>
+            <div class="university-list" id="university-list">
+                <!-- 院校列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 简化统计信息 -->
+        <div class="info-stats">
+            <div class="stat-badge">
+                <i class="fas fa-bell"></i>
+                <span>近半月新通知: <strong id="total-alerts">0</strong> 条</span>
+            </div>
+            <div class="stat-badge">
+                <i class="fas fa-sync-alt"></i>
+                <span>下次更新: <strong id="next-update">08:00</strong></span>
+            </div>
+            <div class="stat-badge">
+                <i class="fas fa-database"></i>
+                <span>数据源: <strong id="data-sources">3个</strong></span>
+            </div>
+        </div>
+
+        <!-- 网络提示 -->
+        <div style="text-align: center; margin: 10px 0;">
+            <div style="display: inline-flex; align-items: center; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 20px; padding: 8px 15px; font-size: 0.85rem; color: #856404;">
+                <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                部分院校官网需要校内网络访问，如遇无法打开请尝试切换网络
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- 侧边栏筛选 -->
+            <div class="sidebar">
+                <!-- 搜索功能 -->
+                <div class="filter-section">
+                    <h3><i class="fas fa-search"></i> 搜索通知</h3>
+                    <input type="text" id="search-input" placeholder="输入关键词搜索..." 
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem;">
+                </div>
+                
+                <div class="filter-section">
+                    <h3><i class="fas fa-filter"></i> 时间范围</h3>
+                    <div class="time-filter">
+                        <button class="time-btn active" data-days="15">近半月</button>
+                        <button class="time-btn" data-days="7">本周</button>
+                        <button class="time-btn" data-days="30">本月</button>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <h3><i class="fas fa-filter"></i> 信息类型</h3>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="filter-all" checked>
+                            <label for="filter-all">全部类型</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="filter-competition" checked>
+                            <label for="filter-competition">竞赛信息</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="filter-policy" checked>
+                            <label for="filter-policy">政策更新</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="filter-academic" checked>
+                            <label for="filter-academic">教务通知</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 自动更新控制 -->
+                <div class="filter-section">
+                    <h3><i class="fas fa-robot"></i> 系统控制</h3>
+                    <div class="filter-options">
+                        <div class="filter-option">
+                            <input type="checkbox" id="auto-update" checked>
+                            <label for="auto-update">开启自动更新</label>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> 
+                        系统每30分钟自动检查更新，每天通过GitHub Actions自动抓取数据
+                    </div>
+                </div>
+                
+                <!-- 信息发布规律提示 -->
+                <div class="filter-section">
+                    <h3><i class="fas fa-lightbulb"></i> 信息发布规律</h3>
+                    <div style="font-size: 0.85rem; color: #666; line-height: 1.5;">
+                        <p><strong>竞赛通知</strong>: 校内选拔集中在9-11月、3-5月</p>
+                        <p><strong>政策更新</strong>: 学期初或学年末发布</p>
+                        <p><strong>教务通知</strong>: 学期初、期中、期末较为集中</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 主内容区域 -->
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bell"></i> 实时信息推送</h2>
+                        <span class="badge" id="new-alerts-count">0条新通知</span>
+                    </div>
+                    
+                    <div class="alert-list" id="alert-list">
+                        <!-- 信息列表将通过JavaScript动态生成 -->
+                        <div class="loading" id="loading">
+                            <i class="fas fa-spinner fa-spin"></i> 正在加载最新信息...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 院校清单数据
+        const universities = [
+            {id: 'tongji', name: '同济大学'},
+            {id: 'huananligong', name: '华南理工大学'},
+            {id: 'sichuan', name: '四川大学'},
+            {id: 'dianzikeji', name: '电子科技大学'},
+            {id: 'dongnan', name: '东南大学'},
+            {id: 'zhejiang', name: '浙江大学'},
+            {id: 'qinghua', name: '清华大学'}
+        ];
+
+        // 从 data.json 加载数据
+        let alertData = [];
+
+        // 状态管理
+        const state = {
+            selectedUniversities: [],
+            selectedTypes: ['competition', 'policy', 'academic'],
+            timeRange: 15,
+            savedAlerts: JSON.parse(localStorage.getItem('savedAlerts')) || [],
+            searchKeyword: '',
+            autoUpdateEnabled: true // 新增：自动更新开关
+        };
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 备用数据
+        function getBackupData() {
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            return [
+                {
+                    id: 1,
+                    title: "保研信息监控系统 - 测试数据",
+                    summary: "这是系统自动生成的测试数据，真实数据正在从各大学校官网抓取中",
+                    date: currentDate,
+                    type: "academic",
+                    university: "清华大学",
+                    college: "教务处",
+                    priority: "high",
+                    link: "#",
+                    source: "自动监控系统"
+                },
+                {
+                    id: 2,
+                    title: "北京大学2025年推免研究生政策说明会",
+                    summary: "详细介绍2025年推免研究生的相关政策变化和申请流程",
+                    date: currentDate,
+                    type: "policy",
+                    university: "北京大学",
+                    college: "研究生院",
+                    priority: "high",
+                    link: "#",
+                    source: "系统模拟数据"
+                },
+                {
+                    id: 3,
+                    title: "全国大学生数学建模竞赛通知",
+                    summary: "2025年全国大学生数学建模竞赛报名开始，请各院校组织学生参加",
+                    date: currentDate,
+                    type: "competition",
+                    university: "全国大学生竞赛组委会",
+                    college: "竞赛办公室",
+                    priority: "medium",
+                    link: "#",
+                    source: "系统模拟数据",
+                    deadline: "2025-12-01"
+                }
+            ];
+        }
+
+        // 加载数据
+        async function loadAlertData() {
+            console.log('开始加载数据...');
+            
+            // 显示加载状态
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loading').innerHTML = 
+                '<i class="fas fa-spinner fa-spin"></i> 正在从网络获取最新信息...';
+
+            try {
+                // 从 Netlify Function 获取数据
+                const apiUrl = '/.netlify/functions/fetch-feeds';
+                console.log('请求API:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`网络请求失败: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('API响应:', result);
+
+                if (result.success) {
+                    alertData = result.alerts;
+                    console.log('成功从API加载数据:', alertData.length, '条');
+                    
+                    // 更新最后更新时间
+                    updateLastUpdateTime();
+                    
+                    // 隐藏加载状态
+                    document.getElementById('loading').style.display = 'none';
+                    
+                } else {
+                    throw new Error(result.error || 'API返回错误');
+                }
+                
+            } catch (error) {
+                console.error('API加载失败:', error);
+                
+                // 使用备用数据
+                alertData = getBackupData();
+                
+                // 更新界面显示错误信息
+                document.getElementById('loading').innerHTML = `
+                    <div style="text-align: center; color: #e74c3c;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>数据加载失败: ${error.message}</p>
+                        <p>已显示备用数据，请检查网络连接后刷新页面</p>
+                    </div>
+                `;
+                
+                // 3秒后隐藏加载状态
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 更新最后更新时间
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const formattedTime = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('last-update').textContent = formattedTime;
+            
+            // 显示自动更新状态
+            const indicator = document.getElementById('update-indicator');
+            if (state.autoUpdateEnabled) {
+                indicator.title = '自动更新已开启（每30分钟检查）';
+            } else {
+                indicator.title = '自动更新已关闭';
+            }
+        }
+
+        // 检查数据新鲜度
+        async function checkDataFreshness() {
+            try {
+                const response = await fetch('./data.json');
+                const data = await response.json();
+                
+                const lastUpdated = new Date(data.lastUpdated);
+                const now = new Date();
+                const hoursDiff = (now - lastUpdated) / (1000 * 60 * 60);
+                
+                if (hoursDiff > 24) {
+                    showNotification('数据可能已过期，正在尝试更新...', 'warning');
+                    // 可以在这里触发手动更新
+                }
+            } catch (error) {
+                console.log('检查数据新鲜度失败:', error);
+            }
+        }
+
+        // 设置自动刷新
+        function setupAutoRefresh() {
+            // 每30分钟检查一次更新
+            setInterval(async () => {
+                if (state.autoUpdateEnabled) {
+                    console.log('执行定时数据更新检查...');
+                    await loadAlertData();
+                }
+            }, 30 * 60 * 1000); // 30分钟
+        }
+
+        // 渲染院校列表
+        function renderUniversityList() {
+            const universityList = document.getElementById('university-list');
+            let html = '';
+            universities.forEach(university => {
+                html += `<div class="university-item" data-id="${university.id}">${university.name}</div>`;
+            });
+            universityList.innerHTML = html;
+        }
+
+        // 渲染信息列表
+        function renderAlerts(alerts) {
+            const alertList = document.getElementById('alert-list');
+            
+            if (alerts.length === 0) {
+                alertList.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>没有找到符合条件的信息</h3>
+                    <p>请尝试调整筛选条件</p>
+                </div>
+                `;
+                return;
+            }
+            
+            // 按优先级排序
+            alerts.sort((a, b) => {
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                return priorityOrder[b.priority] - priorityOrder[a.priority];
+            });
+            
+            let html = '';
+            alerts.forEach(alert => {
+                let priorityClass = '';
+                let priorityIcon = '';
+                
+                switch(alert.priority) {
+                    case 'high':
+                        priorityClass = 'alert-high';
+                        priorityIcon = 'fa-exclamation-circle';
+                        break;
+                    case 'medium':
+                        priorityClass = 'alert-medium';
+                        priorityIcon = 'fa-info-circle';
+                        break;
+                    default:
+                        priorityClass = 'alert-low';
+                        priorityIcon = 'fa-bell';
+                }
+                
+                const tagClass = `tag-${alert.type}`;
+                const isSaved = state.savedAlerts.includes(alert.id);
+                
+                html += `
+                <div class="alert-item" data-id="${alert.id}">
+                    <div class="alert-icon ${priorityClass}">
+                        <i class="fas ${priorityIcon}"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h3>
+                            <span class="priority-indicator priority-${alert.priority}"></span>
+                            ${alert.title}
+                        </h3>
+                        <p>${alert.summary}</p>
+                        <div class="alert-meta">
+                            <span><i class="far fa-clock"></i> ${alert.date}</span>
+                            <span class="alert-tag ${tagClass}">${getTypeName(alert.type)}</span>
+                            <span><i class="fas fa-university"></i> ${alert.university} - ${alert.college}</span>
+                            ${alert.deadline ? `<span><i class="fas fa-hourglass-end"></i> 截止: ${alert.deadline}</span>` : ''}
+                        </div>
+                        <div class="alert-actions">
+                            <a href="${alert.link}" target="_blank" class="external-link">
+                                <i class="fas fa-external-link-alt"></i> 查看原文
+                            </a>
+                            <button class="action-btn save ${isSaved ? 'saved' : ''}" data-id="${alert.id}">
+                                <i class="fas fa-bookmark"></i> ${isSaved ? '已保存' : '保存'}
+                            </button>
+                        </div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 5px;">
+                            <i class="fas fa-info-circle"></i> 来源: ${alert.source}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            
+            alertList.innerHTML = html;
+        }
+
+        // 获取类型名称
+        function getTypeName(type) {
+            const typeMap = {
+                'competition': '竞赛',
+                'policy': '政策',
+                'academic': '教务通知'
+            };
+            return typeMap[type] || '其他';
+        }
+
+        // 根据时间范围筛选信息
+        function filterAlertsByDate(alerts, days) {
+            const currentDate = new Date();
+            const cutoffDate = new Date(currentDate);
+            cutoffDate.setDate(cutoffDate.getDate() - days);
+            
+            return alerts.filter(alert => {
+                const alertDate = new Date(alert.date);
+                return alertDate >= cutoffDate;
+            });
+        }
+
+        // 更新统计信息
+        function updateStats(alerts) {
+            document.getElementById('total-alerts').textContent = alerts.length;
+            document.getElementById('new-alerts-count').textContent = `${alerts.length}条通知`;
+        }
+
+        // 筛选信息
+        function filterAlerts() {
+            let filteredAlerts = filterAlertsByDate(alertData, state.timeRange);
+            
+            // 院校筛选
+            if (state.selectedUniversities.length > 0) {
+                filteredAlerts = filteredAlerts.filter(alert => 
+                    state.selectedUniversities.includes(alert.university)
+                );
+            }
+            
+            // 类型筛选
+            filteredAlerts = filteredAlerts.filter(alert => 
+                state.selectedTypes.includes(alert.type)
+            );
+            
+            // 搜索筛选
+            if (state.searchKeyword) {
+                const keyword = state.searchKeyword.toLowerCase();
+                filteredAlerts = filteredAlerts.filter(alert => 
+                    alert.title.toLowerCase().includes(keyword) || 
+                    alert.summary.toLowerCase().includes(keyword) ||
+                    alert.university.toLowerCase().includes(keyword)
+                );
+            }
+            
+            renderAlerts(filteredAlerts);
+            updateStats(filteredAlerts);
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            // 这里可以添加通知显示逻辑
+            console.log(`[${type}] ${message}`);
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 时间筛选事件
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    state.timeRange = parseInt(this.dataset.days);
+                    filterAlerts();
+                });
+            });
+            
+            // 类型筛选事件
+            document.querySelectorAll('.filter-option input').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const type = this.id.replace('filter-', '');
+                    
+                    if (type === 'all') {
+                        // 全选/取消全选
+                        const isChecked = this.checked;
+                        document.querySelectorAll('.filter-option input').forEach(cb => {
+                            cb.checked = isChecked;
+                        });
+                        
+                        if (isChecked) {
+                            state.selectedTypes = ['competition', 'policy', 'academic'];
+                        } else {
+                            state.selectedTypes = [];
+                        }
+                    } else {
+                        // 单个类型选择
+                        if (this.checked) {
+                            state.selectedTypes.push(type);
+                        } else {
+                            state.selectedTypes = state.selectedTypes.filter(t => t !== type);
+                        }
+                        
+                        // 更新全选状态
+                        const allChecked = state.selectedTypes.length === 3;
+                        document.getElementById('filter-all').checked = allChecked;
+                    }
+                    
+                    filterAlerts();
+                });
+            });
+            
+            // 院校选择事件
+            document.getElementById('university-list').addEventListener('click', function(e) {
+                const universityItem = e.target.closest('.university-item');
+                if (!universityItem) return;
+                
+                const universityId = universityItem.dataset.id;
+                const university = universities.find(u => u.id === universityId);
+                
+                if (!university) return;
+                
+                // 切换选中状态
+                if (universityItem.classList.contains('active')) {
+                    universityItem.classList.remove('active');
+                    state.selectedUniversities = state.selectedUniversities.filter(u => u !== university.name);
+                } else {
+                    universityItem.classList.add('active');
+                    state.selectedUniversities.push(university.name);
+                }
+                
+                filterAlerts();
+            });
+            
+            // 搜索事件
+            document.getElementById('search-input').addEventListener('input', function(e) {
+                state.searchKeyword = e.target.value;
+                filterAlerts();
+            });
+            
+            // 保存信息事件
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.action-btn.save')) {
+                    const btn = e.target.closest('.action-btn.save');
+                    const alertId = parseInt(btn.dataset.id);
+                    
+                    if (state.savedAlerts.includes(alertId)) {
+                        // 取消保存
+                        state.savedAlerts = state.savedAlerts.filter(id => id !== alertId);
+                        btn.innerHTML = '<i class="fas fa-bookmark"></i> 保存';
+                        btn.classList.remove('saved');
+                    } else {
+                        // 保存
+                        state.savedAlerts.push(alertId);
+                        btn.innerHTML = '<i class="fas fa-bookmark"></i> 已保存';
+                        btn.classList.add('saved');
+                    }
+                    
+                    // 保存到本地存储
+                    localStorage.setItem('savedAlerts', JSON.stringify(state.savedAlerts));
+                }
+            });
+
+            // 召唤机器人按钮
+            document.getElementById('call-robot').addEventListener('click', function() {
+                const btn = this;
+                const originalText = btn.innerHTML;
+                
+                // 显示召唤中...
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 召唤中...';
+                btn.disabled = true;
+                
+                // 召唤机器人！
+                loadAlertData().then(() => {
+                    // 3秒后恢复按钮
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        
+                        // 显示成功消息
+                        alert('🤖 机器人工作完成！信息已更新');
+                    }, 3000);
+                });
+            });
+
+            // 立即更新按钮
+            document.getElementById('manual-update').addEventListener('click', function() {
+                loadAlertData();
+            });
+
+            // 自动更新开关
+            document.getElementById('auto-update').addEventListener('change', function() {
+                state.autoUpdateEnabled = this.checked;
+                showNotification(
+                    this.checked ? '自动更新已开启' : '自动更新已关闭', 
+                    this.checked ? 'success' : 'warning'
+                );
+            });
+        }
+
+        // 初始化函数
+        async function init() {
+            try {
+                // 检查数据新鲜度
+                await checkDataFreshness();
+                
+                // 加载数据
+                await loadAlertData();
+                
+                // 初始化界面
+                renderUniversityList();
+                filterAlerts();
+                
+                // 绑定事件
+                bindEvents();
+                
+                // 设置自动更新检查
+                setupAutoRefresh();
+                
+                console.log('初始化完成，加载了', alertData.length, '条数据');
+            } catch (error) {
+                console.error('初始化失败:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<div style="text-align: center; color: #e74c3c;">' +
+                    '<i class="fas fa-exclamation-triangle"></i>' +
+                    '<p>系统初始化失败</p>' +
+                    '<button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">重新加载</button>' +
+                    '</div>';
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
