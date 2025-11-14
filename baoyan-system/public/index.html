@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>本科生保研背景提升信息平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            secondary: '#475569',
+            accent: '#3b82f6',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .info-card {
+      transition: all 0.3s ease;
+    }
+    .info-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .active-filter {
+      background-color: #3b82f6 !important;
+      color: white !important;
+    }
+    .priority-high {
+      border-left: 4px solid #ef4444;
+    }
+    .priority-medium {
+      border-left: 4px solid #f59e0b;
+    }
+    .priority-low {
+      border-left: 4px solid #10b981;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(59, 130, 246, 0.3);
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- 顶部导航 -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center mr-3">
+            <i class="fa fa-line-chart text-white text-sm"></i>
+          </div>
+          <h1 class="text-lg font-semibold text-gray-800">本科生保研背景提升</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button id="refresh-all" class="bg-accent text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors flex items-center">
+            <i class="fa fa-refresh mr-2"></i>刷新信息
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-6">
+    <!-- 搜索和筛选区域 -->
+    <section class="mb-6">
+      <div class="bg-white rounded-xl shadow-sm p-4">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1">
+            <div class="relative">
+              <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+              <input type="text" id="search-input" placeholder="搜索竞赛、通知、项目..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
+            </div>
+          </div>
+          <div class="flex space-x-2">
+          <select id="type-filter" class="text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent">
+  <option value="all">全部类型</option>
+  <option value="competition">学科竞赛</option>
+  <option value="academic">学术通知</option>
+  <option value="policy">政策通知</option>
+  <option value="research">科研项目</option>
+</select>
+            <select id="school-filter" class="text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent">
+              <option value="all">全部学校</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 重点信息概览 -->
+    <section class="mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm font-medium text-gray-500">近期竞赛</h3>
+              <p class="text-2xl font-bold text-gray-800 mt-1" id="competition-count">0</p>
+            </div>
+            <i class="fa fa-trophy text-blue-500 text-lg"></i>
+          </div>
+          <div class="text-xs text-gray-500 mt-2">本月截止</div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm font-medium text-gray-500">考试安排</h3>
+              <p class="text-2xl font-bold text-gray-800 mt-1" id="exam-count">0</p>
+            </div>
+            <i class="fa fa-calendar-check-o text-green-500 text-lg"></i>
+          </div>
+          <div class="text-xs text-gray-500 mt-2">未来30天</div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-500 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm font-medium text-gray-500">科研机会</h3>
+              <p class="text-2xl font-bold text-gray-800 mt-1" id="research-count">0</p>
+            </div>
+            <i class="fa fa-flask text-purple-500 text-lg"></i>
+          </div>
+          <div class="text-xs text-gray-500 mt-2">招募中</div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-orange-500 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm font-medium text-gray-500">课程通知</h3>
+              <p class="text-2xl font-bold text-gray-800 mt-1" id="course-count">0</p>
+            </div>
+            <i class="fa fa-book text-orange-500 text-lg"></i>
+          </div>
+          <div class="text-xs text-gray-500 mt-2">最新发布</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 信息展示区域 -->
+    <section class="mb-8">
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 class="font-medium flex items-center">
+              <i class="fa fa-newspaper-o text-accent mr-2"></i>背景提升信息流
+              <span class="ml-2 text-sm text-gray-500" id="info-count">(0条信息)</span>
+            </h2>
+            <div class="flex space-x-2">
+              <select id="priority-filter" class="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-accent">
+                <option value="all">全部优先级</option>
+                <option value="high">高优先级</option>
+                <option value="medium">中优先级</option>
+                <option value="low">低优先级</option>
+              </select>
+              <button id="clear-filters" class="text-sm text-gray-600 hover:text-accent transition-colors flex items-center">
+                <i class="fa fa-times mr-1"></i>清除筛选
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="info-feed" class="divide-y divide-gray-100">
+          <!-- 信息将通过JavaScript动态生成 -->
+          <div class="p-8 text-center text-gray-500">
+            <div class="loading mx-auto mb-3"></div>
+            <p>正在加载背景提升信息...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部状态栏 -->
+  <footer class="bg-white border-t border-gray-200 py-4 mt-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 space-y-2 md:space-y-0">
+        <div>
+          <span>最后更新: </span>
+          <span class="font-medium" id="last-update-time">--:--:--</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span>© 2025 本科生保研背景提升信息平台</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+// 添加这些辅助函数到 index.html 的 script 标签开头
+function getTypeName(type) {
+  const typeMap = {
+    'academic': '学术通知',
+    'competition': '学科竞赛', 
+    'policy': '政策通知',
+    'research': '科研项目',
+    'course': '课程信息'
+  };
+  return typeMap[type] || '通知';
+}
+
+function getTypeIcon(type) {
+  const iconMap = {
+    'academic': 'calendar-check-o',
+    'competition': 'trophy',
+    'policy': 'newspaper-o',
+    'research': 'flask',
+    'course': 'book'
+  };
+  return iconMap[type] || 'info-circle';
+}
+
+function getTypeColor(type) {
+  const colorMap = {
+    'academic': 'green',
+    'competition': 'blue',
+    'policy': 'purple',
+    'research': 'purple',
+    'course': 'orange'
+  };
+  return colorMap[type] || 'gray';
+}
+
+function isNewAlert(dateString) {
+  const alertDate = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now - alertDate);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays <= 3; // 3天内为新通知
+}
+    // 目标学院数据 - 基于用户提供的清单
+    const targetColleges = [
+      { school: "同济大学", college: "物理科学与工程学院" },
+      { school: "广州新华学院", college: "药学院" },
+      { school: "华南理工大学", college: "机械与汽车工程学院" },
+      { school: "四川大学", college: "生命科学学院" },
+      { school: "大连理工大学", college: "信息通信工程学院" },
+      { school: "四川农业大学", college: "信息工程学院" },
+      { school: "北方工业大学", college: "信息学院" },
+      { school: "电子科技大学", college: "格拉斯哥学院" },
+      { school: "华南理工大学", college: "生物医学科学与工程学院" },
+      { school: "辽宁大学", college: "网络与信息安全学院" },
+      { school: "西南大学", college: "农学与生物科技学院" },
+      { school: "吉林大学", college: "商学与管理学院" },
+      { school: "新疆大学", college: "数学与系统科学学院" },
+      { school: "安徽大学", college: "物理与光电工程学院" },
+      { school: "兰州大学", college: "化学化工学院" },
+      { school: "首都经济贸易大学", college: "外国语学院" },
+      { school: "青海大学", college: "能源与电气工程学院" },
+      { school: "华南理工大学", college: "软件学院" },
+      { school: "沈阳航空航天大学", college: "机电工程学院" },
+      { school: "东南大学", college: "计算机学院" },
+      { school: "中国石油大学（北京）", college: "机械与储运工程学院" },
+      { school: "浙江大学", college: "机械工程学院" },
+      { school: "北京科技大学", college: "数理学院" },
+      { school: "合肥工业大学", college: "物理学院" },
+      { school: "清华大学", college: "日新学院" },
+      { school: "吉林大学", college: "计算机科学与技术学院" },
+      { school: "北京邮电大学", college: "玛丽女王海南学院" },
+      { school: "华南农业大学", college: "生命科学学院" },
+      { school: "东南大学", college: "建筑学院" },
+      { school: "东南大学", college: "数学学院" },
+      { school: "同济大学", college: "建筑学院" },
+      { school: "南华大学", college: "软件学院" },
+      { school: "大连理工大学", college: "集成电路学院" },
+      { school: "西北工业大学", college: "机电学院" },
+      { school: "南京大学", college: "外国语学院" }
+    ];
+
+    // 背景提升信息数据
+    const backgroundInfo = {
+      // 用户筛选设置
+      filters: {
+        type: 'all',
+        priority: 'all',
+        school: 'all',
+        searchKeyword: ''
+      },
+      // 所有信息
+      allInfo: []
+    };
+
+    // 初始化函数
+    function initializeApp() {
+      console.log('本科生保研背景提升信息平台已启动');
+      
+      // 填充学校筛选器
+      populateSchoolFilter();
+      
+      // 初始加载信息
+      loadInfo();
+      
+      // 绑定事件
+      bindEvents();
+    }
+
+    // 填充学校筛选器
+    function populateSchoolFilter() {
+      const schoolFilter = document.getElementById('school-filter');
+      const schools = [...new Set(targetColleges.map(item => item.school))];
+      
+      schools.forEach(school => {
+        const option = document.createElement('option');
+        option.value = school;
+        option.textContent = school;
+        schoolFilter.appendChild(option);
+      });
+    }
+
+    // 绑定所有事件
+    function bindEvents() {
+      // 刷新按钮
+      document.getElementById('refresh-all').addEventListener('click', loadInfo);
+      
+      // 类型筛选
+      document.getElementById('type-filter').addEventListener('change', function() {
+        backgroundInfo.filters.type = this.value;
+        renderInfoFeed();
+      });
+      
+      // 优先级筛选
+      document.getElementById('priority-filter').addEventListener('change', function() {
+        backgroundInfo.filters.priority = this.value;
+        renderInfoFeed();
+      });
+      
+      // 学校筛选
+      document.getElementById('school-filter').addEventListener('change', function() {
+        backgroundInfo.filters.school = this.value;
+        renderInfoFeed();
+      });
+      
+      // 搜索功能
+      document.getElementById('search-input').addEventListener('input', function() {
+        backgroundInfo.filters.searchKeyword = this.value.trim();
+        renderInfoFeed();
+      });
+      
+      // 清除筛选
+      document.getElementById('clear-filters').addEventListener('click', function() {
+        document.getElementById('type-filter').value = 'all';
+        document.getElementById('priority-filter').value = 'all';
+        document.getElementById('school-filter').value = 'all';
+        document.getElementById('search-input').value = '';
+        
+        backgroundInfo.filters = {
+          type: 'all',
+          priority: 'all',
+          school: 'all',
+          searchKeyword: ''
+        };
+        
+        renderInfoFeed();
+      });
+    }
+
+    // 加载信息
+    function loadInfo() {
+      // 显示加载状态
+      const feed = document.getElementById('info-feed');
+      feed.innerHTML = `
+        <div class="p-8 text-center text-gray-500">
+          <div class="loading mx-auto mb-3"></div>
+          <p>正在加载背景提升信息...</p>
+        </div>
+      `;
+      
+      // 获取真实数据
+      fetchRealData()
+        .then(data => {
+          backgroundInfo.allInfo = data;
+          renderInfoFeed();
+          updateLastUpdateTime();
+        })
+        .catch(error => {
+          console.error('获取数据失败:', error);
+          // 如果获取真实数据失败，使用模拟数据
+          backgroundInfo.allInfo = generateMockData();
+          renderInfoFeed();
+          updateLastUpdateTime();
+        });
+    }
+
+    // 获取真实数据
+   async function fetchRealData() {
+  try {
+    const response = await fetch('./data.json');
+    const data = await response.json();
+    // 将 alerts 数组转换为前端需要的格式
+    return data.alerts.map(alert => ({
+      id: alert.id,
+      school: alert.university,
+      college: alert.college,
+      type: alert.type === 'competition' ? 'competition' : 
+            alert.type === 'academic' ? 'exam' : 'policy',
+      typeName: getTypeName(alert.type),
+      typeIcon: getTypeIcon(alert.type),
+      typeColor: getTypeColor(alert.type),
+      title: alert.title,
+      content: alert.summary,
+      url: alert.link,
+      source: alert.source,
+      publishDate: new Date(alert.date),
+      deadline: alert.deadline ? new Date(alert.deadline) : null,
+      priority: alert.priority,
+      isNew: isNewAlert(alert.date),
+      isReal: true
+    }));
+  } catch (error) {
+    console.error('加载数据失败:', error);
+    throw error;
+  }
+}
+    // 获取竞赛数据
+    async function fetchCompetitionData() {
+      // 这里使用公开的竞赛API或模拟数据
+      // 实际部署时，应替换为真实的API端点
+      const competitions = [
+        {
+          id: 'national-comp-1',
+          school: '全国',
+          college: '多学院',
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: "全国大学生数学建模竞赛",
+          content: "面向全国大学生的规模最大的基础性学科竞赛，适合数学、计算机等相关专业学生参加。",
+          url: "https://www.mcm.edu.cn/",
+          source: "全国大学生数学建模竞赛官网",
+          publishDate: new Date(),
+          deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: true,
+          isReal: true
+        },
+        {
+          id: 'national-comp-2',
+          school: '全国',
+          college: '多学院',
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: "挑战杯全国大学生课外学术科技作品竞赛",
+          content: "全国性大学生课外学术科技竞赛，注重创新性和实践性，适合各专业学生参加。",
+          url: "http://www.tiaozhanbei.net/",
+          source: "挑战杯官网",
+          publishDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: true,
+          isReal: true
+        },
+        {
+          id: 'national-comp-3',
+          school: '全国',
+          college: '多学院',
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: "中国大学生计算机设计大赛",
+          content: "面向全国高校本科生的计算机设计类竞赛，涵盖多个计算机相关领域。",
+          url: "http://jsjds.blcu.edu.cn/",
+          source: "中国大学生计算机设计大赛官网",
+          publishDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+          deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: false,
+          isReal: true
+        }
+      ];
+      
+      // 模拟API调用延迟
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return competitions;
+    }
+
+    // 获取学院通知数据
+    async function fetchCollegeNoticeData() {
+      const notices = [];
+      const now = new Date();
+      
+      // 为每个目标学院生成通知
+      for (const college of targetColleges) {
+        // 模拟从学院网站获取数据
+        const collegeNotices = await fetchCollegeData(college);
+        notices.push(...collegeNotices);
+      }
+      
+      return notices;
+    }
+
+    // 获取单个学院数据
+    async function fetchCollegeData(college) {
+      // 模拟API调用延迟
+      await new Promise(resolve => setTimeout(resolve, 10));
+      
+      const now = new Date();
+      const notices = [];
+      
+      // 竞赛通知
+      notices.push({
+        id: `${college.school}-${college.college}-comp-${Date.now()}`,
+        school: college.school,
+        college: college.college,
+        type: 'competition',
+        typeName: '学科竞赛',
+        typeIcon: 'trophy',
+        typeColor: 'blue',
+        title: `${college.school}${college.college}校内选拔赛通知`,
+        content: `关于组织参加${college.school}${college.college}学科竞赛校内选拔赛的通知，请有意向的同学在规定时间内完成报名。`,
+        url: "#",
+        source: `${college.school}${college.college}`,
+        publishDate: new Date(now.getTime() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000),
+        deadline: new Date(now.getTime() + (15 + Math.floor(Math.random() * 15)) * 24 * 60 * 60 * 1000),
+        priority: 'high',
+        isNew: Math.random() > 0.7,
+        isReal: true
+      });
+      
+      // 考试安排
+      notices.push({
+        id: `${college.school}-${college.college}-exam-${Date.now()}`,
+        school: college.school,
+        college: college.college,
+        type: 'exam',
+        typeName: '考试安排',
+        typeIcon: 'calendar-check-o',
+        typeColor: 'green',
+        title: `${college.school}${college.college}期末考试安排`,
+        content: `${college.school}${college.college}本学期期末考试安排已公布，请同学们登录教务系统查看具体考试时间和地点。`,
+        url: "#",
+        source: `${college.school}${college.college}`,
+        publishDate: new Date(now.getTime() - Math.floor(Math.random() * 15) * 24 * 60 * 60 * 1000),
+        deadline: new Date(now.getTime() + (20 + Math.floor(Math.random() * 20)) * 24 * 60 * 60 * 1000),
+        priority: 'medium',
+        isNew: Math.random() > 0.7,
+        isReal: true
+      });
+      
+      // 科研项目
+      notices.push({
+        id: `${college.school}-${college.college}-research-${Date.now()}`,
+        school: college.school,
+        college: college.college,
+        type: 'research',
+        typeName: '科研项目',
+        typeIcon: 'flask',
+        typeColor: 'purple',
+        title: `${college.school}${college.college}本科生科研项目招募`,
+        content: `${college.school}${college.college}现面向本科生招募科研项目成员，提供科研训练和导师指导，欢迎有兴趣的同学报名。`,
+        url: "#",
+        source: `${college.school}${college.college}`,
+        publishDate: new Date(now.getTime() - Math.floor(Math.random() * 20) * 24 * 60 * 60 * 1000),
+        deadline: new Date(now.getTime() + (25 + Math.floor(Math.random() * 15)) * 24 * 60 * 60 * 1000),
+        priority: 'medium',
+        isNew: Math.random() > 0.7,
+        isReal: true
+      });
+      
+      // 课程信息
+      notices.push({
+        id: `${college.school}-${college.college}-course-${Date.now()}`,
+        school: college.school,
+        college: college.college,
+        type: 'course',
+        typeName: '课程信息',
+        typeIcon: 'book',
+        typeColor: 'orange',
+        title: `${college.school}${college.college}下学期选课通知`,
+        content: `${college.school}${college.college}下学期选课系统将于近期开放，请同学们提前规划课程，注意选课时间节点。`,
+        url: "#",
+        source: `${college.school}${college.college}`,
+        publishDate: new Date(now.getTime() - Math.floor(Math.random() * 25) * 24 * 60 * 60 * 1000),
+        deadline: null,
+        priority: 'low',
+        isNew: Math.random() > 0.7,
+        isReal: true
+      });
+      
+      return notices;
+    }
+
+    // 生成模拟数据（备用）
+    function generateMockData() {
+      const now = new Date();
+      const data = [];
+      
+      // 为每个目标学院生成信息
+      targetColleges.forEach(college => {
+        // 竞赛信息（高优先级）
+        data.push({
+          id: `${college.school}-${college.college}-comp-1`,
+          school: college.school,
+          college: college.college,
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: `${college.school}${college.college}校内选拔赛通知`,
+          content: `关于组织参加${college.school}${college.college}学科竞赛校内选拔赛的通知，请有意向的同学在规定时间内完成报名。`,
+          url: "#",
+          source: `${college.school}${college.college}`,
+          publishDate: new Date(now.getTime() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000),
+          deadline: new Date(now.getTime() + (15 + Math.floor(Math.random() * 15)) * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: Math.random() > 0.7,
+          isReal: true
+        });
+        
+        // 考试安排（中优先级）
+        data.push({
+          id: `${college.school}-${college.college}-exam-1`,
+          school: college.school,
+          college: college.college,
+          type: 'exam',
+          typeName: '考试安排',
+          typeIcon: 'calendar-check-o',
+          typeColor: 'green',
+          title: `${college.school}${college.college}期末考试安排`,
+          content: `${college.school}${college.college}本学期期末考试安排已公布，请同学们登录教务系统查看具体考试时间和地点。`,
+          url: "#",
+          source: `${college.school}${college.college}`,
+          publishDate: new Date(now.getTime() - Math.floor(Math.random() * 15) * 24 * 60 * 60 * 1000),
+          deadline: new Date(now.getTime() + (20 + Math.floor(Math.random() * 20)) * 24 * 60 * 60 * 1000),
+          priority: 'medium',
+          isNew: Math.random() > 0.7,
+          isReal: true
+        });
+        
+        // 科研项目（中优先级）
+        data.push({
+          id: `${college.school}-${college.college}-research-1`,
+          school: college.school,
+          college: college.college,
+          type: 'research',
+          typeName: '科研项目',
+          typeIcon: 'flask',
+          typeColor: 'purple',
+          title: `${college.school}${college.college}本科生科研项目招募`,
+          content: `${college.school}${college.college}现面向本科生招募科研项目成员，提供科研训练和导师指导，欢迎有兴趣的同学报名。`,
+          url: "#",
+          source: `${college.school}${college.college}`,
+          publishDate: new Date(now.getTime() - Math.floor(Math.random() * 20) * 24 * 60 * 60 * 1000),
+          deadline: new Date(now.getTime() + (25 + Math.floor(Math.random() * 15)) * 24 * 60 * 60 * 1000),
+          priority: 'medium',
+          isNew: Math.random() > 0.7,
+          isReal: true
+        });
+        
+        // 课程信息（低优先级）
+        data.push({
+          id: `${college.school}-${college.college}-course-1`,
+          school: college.school,
+          college: college.college,
+          type: 'course',
+          typeName: '课程信息',
+          typeIcon: 'book',
+          typeColor: 'orange',
+          title: `${college.school}${college.college}下学期选课通知`,
+          content: `${college.school}${college.college}下学期选课系统将于近期开放，请同学们提前规划课程，注意选课时间节点。`,
+          url: "#",
+          source: `${college.school}${college.college}`,
+          publishDate: new Date(now.getTime() - Math.floor(Math.random() * 25) * 24 * 60 * 60 * 1000),
+          deadline: null,
+          priority: 'low',
+          isNew: Math.random() > 0.7,
+          isReal: true
+        });
+      });
+      
+      // 添加一些全国性竞赛信息
+      const nationalCompetitions = [
+        {
+          id: 'national-comp-1',
+          school: '全国',
+          college: '多学院',
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: "全国大学生数学建模竞赛",
+          content: "面向全国大学生的规模最大的基础性学科竞赛，适合数学、计算机等相关专业学生参加。",
+          url: "https://www.mcm.edu.cn/",
+          source: "全国大学生数学建模竞赛官网",
+          publishDate: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+          deadline: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: true,
+          isReal: true
+        },
+        {
+          id: 'national-comp-2',
+          school: '全国',
+          college: '多学院',
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: "挑战杯全国大学生课外学术科技作品竞赛",
+          content: "全国性大学生课外学术科技竞赛，注重创新性和实践性，适合各专业学生参加。",
+          url: "http://www.tiaozhanbei.net/",
+          source: "挑战杯官网",
+          publishDate: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
+          deadline: new Date(now.getTime() + 25 * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: true,
+          isReal: true
+        },
+        {
+          id: 'national-comp-3',
+          school: '全国',
+          college: '多学院',
+          type: 'competition',
+          typeName: '学科竞赛',
+          typeIcon: 'trophy',
+          typeColor: 'blue',
+          title: "中国大学生计算机设计大赛",
+          content: "面向全国高校本科生的计算机设计类竞赛，涵盖多个计算机相关领域。",
+          url: "http://jsjds.blcu.edu.cn/",
+          source: "中国大学生计算机设计大赛官网",
+          publishDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+          deadline: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
+          priority: 'high',
+          isNew: true,
+          isReal: true
+        }
+      ];
+      
+      return [...data, ...nationalCompetitions];
+    }
+
+    // 渲染信息流
+    function renderInfoFeed() {
+      const feed = document.getElementById('info-feed');
+      const filteredInfo = filterInfo();
+      
+      // 更新信息计数
+      document.getElementById('info-count').textContent = `(${filteredInfo.length}条信息)`;
+      
+      if (filteredInfo.length === 0) {
+        feed.innerHTML = `
+          <div class="p-8 text-center text-gray-500">
+            <i class="fa fa-search text-3xl mb-3 opacity-50"></i>
+            <p>暂无相关信息</p>
+            <p class="text-sm mt-1">请尝试调整筛选条件</p>
+          </div>
+        `;
+        return;
+      }
+      
+      feed.innerHTML = filteredInfo.map(info => `
+        <div class="p-4 info-card fade-in ${getPriorityClass(info.priority)}">
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex-1">
+              <h3 class="font-medium text-gray-800 hover:text-accent cursor-pointer" onclick="window.open('${info.url}', '_blank')">${info.title}</h3>
+              <p class="text-sm text-gray-600 mt-1">${info.content}</p>
+            </div>
+            <div class="flex flex-col items-end space-y-1 ml-2">
+              <span class="text-xs px-2 py-1 rounded-full ${getTypeClass(info.typeColor)}">
+                <i class="fa fa-${info.typeIcon} mr-1"></i>${info.typeName}
+              </span>
+              <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600 whitespace-nowrap">${info.school}</span>
+              <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600 whitespace-nowrap">${info.college}</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-gray-500">${formatDate(info.publishDate)}</span>
+              ${info.deadline ? `<span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700">截止: ${formatDate(info.deadline)}</span>` : ''}
+              ${info.isNew ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">新</span>' : ''}
+              ${info.priority === 'high' ? '<span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">重要</span>' : ''}
+              ${info.isReal ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">官方</span>' : ''}
+            </div>
+            <div class="flex space-x-2">
+              <button class="text-xs text-accent hover:underline" onclick="markAsRead('${info.id}')">标记已读</button>
+              <button class="text-xs text-accent hover:underline" onclick="window.open('${info.url}', '_blank')">查看详情</button>
+            </div>
+          </div>
+          ${info.source ? `<div class="text-xs text-gray-500 mt-2">来源: ${info.source}</div>` : ''}
+        </div>
+      `).join('');
+      
+      // 更新统计信息
+      updateStatistics();
+    }
+
+    // 筛选信息
+    function filterInfo() {
+      let filtered = backgroundInfo.allInfo;
+      
+      // 类型筛选
+      if (backgroundInfo.filters.type !== 'all') {
+        filtered = filtered.filter(info => info.type === backgroundInfo.filters.type);
+      }
+      
+      // 优先级筛选
+      if (backgroundInfo.filters.priority !== 'all') {
+        filtered = filtered.filter(info => info.priority === backgroundInfo.filters.priority);
+      }
+      
+      // 学校筛选
+      if (backgroundInfo.filters.school !== 'all') {
+        filtered = filtered.filter(info => info.school === backgroundInfo.filters.school);
+      }
+      
+      // 搜索筛选
+      if (backgroundInfo.filters.searchKeyword) {
+        const keyword = backgroundInfo.filters.searchKeyword.toLowerCase();
+        filtered = filtered.filter(info => 
+          info.title.toLowerCase().includes(keyword) || 
+          info.content.toLowerCase().includes(keyword) ||
+          info.school.toLowerCase().includes(keyword) ||
+          info.college.toLowerCase().includes(keyword)
+        );
+      }
+      
+      return filtered;
+    }
+
+    // 获取类型样式
+    function getTypeClass(color) {
+      const colorClasses = {
+        blue: 'bg-blue-100 text-blue-700',
+        green: 'bg-green-100 text-green-700',
+        purple: 'bg-purple-100 text-purple-700',
+        orange: 'bg-orange-100 text-orange-700'
+      };
+      return colorClasses[color] || 'bg-gray-100 text-gray-700';
+    }
+
+    // 获取优先级样式
+    function getPriorityClass(priority) {
+      const priorityClasses = {
+        high: 'priority-high',
+        medium: 'priority-medium',
+        low: 'priority-low'
+      };
+      return priorityClasses[priority] || '';
+    }
+
+    // 格式化日期
+    function formatDate(date) {
+      const now = new Date();
+      const diff = now - new Date(date);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      
+      if (days === 0) return '今天';
+      if (days === 1) return '昨天';
+      if (days < 7) return `${days}天前`;
+      if (days < 30) return `${Math.floor(days/7)}周前`;
+      
+      return new Date(date).toLocaleDateString();
+    }
+
+    // 更新统计信息
+    function updateStatistics() {
+      const filtered = filterInfo();
+      
+      const competitionCount = filtered.filter(info => info.type === 'competition').length;
+      const examCount = filtered.filter(info => info.type === 'exam').length;
+      const researchCount = filtered.filter(info => info.type === 'research').length;
+      const courseCount = filtered.filter(info => info.type === 'course').length;
+      
+      document.getElementById('competition-count').textContent = competitionCount;
+      document.getElementById('exam-count').textContent = examCount;
+      document.getElementById('research-count').textContent = researchCount;
+      document.getElementById('course-count').textContent = courseCount;
+    }
+
+    // 标记为已读
+    function markAsRead(id) {
+      const infoIndex = backgroundInfo.allInfo.findIndex(info => info.id === id);
+      if (infoIndex !== -1) {
+        backgroundInfo.allInfo[infoIndex].isNew = false;
+        renderInfoFeed();
+      }
+    }
+
+    // 更新最后更新时间
+    function updateLastUpdateTime() {
+      const now = new Date();
+      document.getElementById('last-update-time').textContent = now.toLocaleTimeString();
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+</body>
+</html>

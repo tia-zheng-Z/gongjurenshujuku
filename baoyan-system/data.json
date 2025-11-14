@@ -1,0 +1,69 @@
+{
+  "alerts": [
+    {
+      "id": 1,
+      "title": "教育部发布2025年研究生招生政策调整通知",
+      "summary": "2025年全国研究生招生政策将有重要调整，涉及推免生比例、考试科目等方面",
+      "date": "2025-11-15",
+      "type": "policy",
+      "university": "教育部",
+      "college": "研究生司",
+      "priority": "high",
+      "link": "http://www.moe.gov.cn/",
+      "source": "教育部官网"
+    },
+    {
+      "id": 2,
+      "title": "全国大学生数学建模竞赛通知",
+      "summary": "2025年全国大学生数学建模竞赛开始报名，获奖者在保研中享有加分政策",
+      "date": "2025-11-14",
+      "type": "competition",
+      "university": "全国组委会",
+      "college": "竞赛办公室",
+      "priority": "high",
+      "link": "#",
+      "source": "自动监控系统",
+      "deadline": "2025-12-01"
+    },
+    {
+      "id": 3,
+      "title": "清华大学强基计划说明会",
+      "summary": "清华大学将于本周举办强基计划培养方案解读会，欢迎有意向的同学参加",
+      "date": "2025-11-13",
+      "type": "policy",
+      "university": "清华大学",
+      "college": "招生办公室",
+      "priority": "high",
+      "link": "#",
+      "source": "自动监控系统"
+    },
+    {
+      "id": 4,
+      "title": "同济大学物理科学与工程学院创新竞赛",
+      "summary": "学院举办的物理创新竞赛，面向全校本科生，获奖者将获得创新学分和奖金",
+      "date": "2025-11-12",
+      "type": "competition",
+      "university": "同济大学",
+      "college": "物理科学与工程学院",
+      "priority": "high",
+      "link": "#",
+      "source": "同济大学官网",
+      "deadline": "2025-11-30"
+    },
+    {
+      "id": 5,
+      "title": "华南理工大学教务处课程安排通知",
+      "summary": "公布下学期课程安排、选课时间及注意事项，请各学院及学生提前准备",
+      "date": "2025-11-11",
+      "type": "academic",
+      "university": "华南理工大学",
+      "college": "教务处",
+      "priority": "medium",
+      "link": "#",
+      "source": "华南理工大学官网"
+    }
+  ],
+  "lastUpdated": "2025-11-15T08:00:00.000Z",
+  "total": 5,
+  "sources": ["教育部", "各高校官网", "竞赛组委会"]
+}
